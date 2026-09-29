@@ -1,0 +1,1126 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tamagotchi Virtual — Magic Arcade 24h</title>
+  
+  <!-- Google Fonts: Poppins -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      /* Palette Tokens from DESIGN.md */
+      --color-electric-grape: #5b00ed;
+      --gradient-electric-grape: linear-gradient(45deg, #e30ba6, #5b00ed);
+      --color-deep-concord: #3f0791;
+      --color-bubblegum-flash: #e30ba6;
+      --color-sky-scoop: #bfefff;
+      --gradient-sky-scoop: linear-gradient(180deg, #bfedfe 0%, #d4beff 100%);
+      --color-lilac-aisle: #dad9ff;
+      --color-soft-grape: #cac4f4;
+      --color-marshmallow: #ffffff;
+      --color-midnight-cereal: #000000;
+
+      /* Typography */
+      --font-poppins: 'Poppins', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+      /* Shadows & Radii */
+      --radius-card: 25px;
+      --radius-pill: 52px;
+      --radius-button: 20px;
+      --radius-bubble: 22px;
+      --shadow-xl: 0px 15px 50px rgba(0, 0, 0, 0.08);
+      --shadow-xl-2: 0px 20px 60px rgba(63, 7, 145, 0.15);
+      --shadow-inner: inset 0px 0px 0px 2px #ffffff;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: var(--font-poppins);
+    }
+
+    body {
+      background-color: var(--color-lilac-aisle);
+      background-image: radial-gradient(#cac4f4 1.5px, transparent 1.5px), radial-gradient(#cac4f4 1.5px, var(--color-lilac-aisle) 1.5px);
+      background-size: 30px 30px;
+      background-position: 0 0, 15px 15px;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      color: var(--color-deep-concord);
+      overflow-x: hidden;
+    }
+
+    /* Main Container */
+    .app-wrapper {
+      width: 100%;
+      max-width: 480px;
+      position: relative;
+    }
+
+    /* Card Component */
+    .game-card {
+      background: var(--color-marshmallow);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-xl-2);
+      border: 3px solid var(--color-deep-concord);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      transition: all 0.3s ease;
+    }
+
+    /* Brand Header */
+    .game-header {
+      background: var(--gradient-electric-grape);
+      padding: 18px 24px;
+      color: var(--color-marshmallow);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 3px solid var(--color-deep-concord);
+    }
+
+    .header-pet-name {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .digital-clock-badge {
+      background: var(--color-marshmallow);
+      color: var(--color-deep-concord);
+      padding: 6px 14px;
+      border-radius: var(--radius-pill);
+      font-weight: 700;
+      font-size: 14px;
+      border: 2px solid var(--color-deep-concord);
+      box-shadow: 0 2px 0 var(--color-deep-concord);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Clock Simulation Progress Bar */
+    .day-progress-bar-container {
+      background: var(--color-soft-grape);
+      height: 6px;
+      width: 100%;
+      overflow: hidden;
+    }
+    .day-progress-bar {
+      background: var(--color-bubblegum-flash);
+      height: 100%;
+      width: 0%;
+      transition: width 0.5s ease-linear;
+    }
+
+    /* Main Stage / Avatar Area */
+    .stage-area {
+      background: var(--gradient-sky-scoop);
+      padding: 30px 20px 25px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      min-height: 220px;
+      justify-content: center;
+      border-bottom: 2px dashed var(--color-soft-grape);
+    }
+
+    /* Speech Bubble */
+    .dialogue-bubble {
+      background: var(--color-marshmallow);
+      border: 2px solid var(--color-deep-concord);
+      color: var(--color-deep-concord);
+      border-radius: var(--radius-bubble);
+      padding: 10px 18px;
+      font-size: 14px;
+      font-weight: 600;
+      text-align: center;
+      max-width: 85%;
+      position: relative;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 12px rgba(63, 7, 145, 0.08);
+      animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .dialogue-bubble::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-width: 10px 10px 0;
+      border-style: solid;
+      border-color: var(--color-deep-concord) transparent;
+      display: block;
+      width: 0;
+    }
+    .dialogue-bubble::before {
+      content: '';
+      position: absolute;
+      bottom: -7px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-width: 8px 8px 0;
+      border-style: solid;
+      border-color: var(--color-marshmallow) transparent;
+      display: block;
+      width: 0;
+      z-index: 1;
+    }
+
+    /* Avatar Display */
+    .avatar-wrapper {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .avatar-character {
+      font-size: 76px;
+      line-height: 1;
+      filter: drop-shadow(0 8px 12px rgba(63, 7, 145, 0.15));
+      user-select: none;
+      transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      animation: gentleFloat 3s ease-in-out infinite;
+    }
+
+    .avatar-character.bounce {
+      animation: happyJump 0.6s ease;
+    }
+
+    .avatar-character.shake {
+      animation: shakeSad 0.5s ease;
+    }
+
+    .avatar-character.dead {
+      animation: ghostHover 2s ease-in-out infinite;
+      filter: drop-shadow(0 0 15px rgba(227, 11, 166, 0.6));
+    }
+
+    /* Status Warnings Overlay Badge */
+    .urgent-badge {
+      position: absolute;
+      top: -8px;
+      right: -15px;
+      background: var(--color-bubblegum-flash);
+      color: white;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: var(--radius-pill);
+      border: 2px solid white;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      animation: pulseAlert 1s infinite alternate;
+      display: none;
+    }
+
+    /* Stats Panel */
+    .stats-container {
+      padding: 20px 24px;
+      background: var(--color-marshmallow);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .stat-box {
+      background: #fbf9ff;
+      border: 1.5px solid var(--color-soft-grape);
+      border-radius: 16px;
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .stat-box.full-width {
+      grid-column: span 2;
+      background: linear-gradient(135deg, #f8f6ff 0%, #ede8ff 100%);
+      border-color: var(--color-deep-concord);
+    }
+
+    .stat-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--color-deep-concord);
+    }
+
+    .stat-value {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--color-deep-concord);
+    }
+
+    .stat-bar-track {
+      background: #e4e0f7;
+      height: 10px;
+      border-radius: var(--radius-pill);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .stat-bar-fill {
+      height: 100%;
+      border-radius: var(--radius-pill);
+      transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease;
+    }
+
+    .fill-hunger {
+      background: linear-gradient(90deg, #ff9f43, #e30ba6);
+    }
+
+    .fill-fun {
+      background: linear-gradient(90deg, #54a0ff, #5b00ed);
+    }
+
+    .fill-hygiene {
+      background: linear-gradient(90deg, #10ac84, #00d2d3);
+    }
+
+    .fill-happiness {
+      background: var(--gradient-electric-grape);
+    }
+
+    /* Low warning color */
+    .fill-low {
+      background: #eb4d4b !important;
+    }
+
+    /* Actions / Control Buttons Panel */
+    .controls-container {
+      padding: 16px 24px 24px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      background: var(--color-marshmallow);
+    }
+
+    .btn-action {
+      background: var(--color-marshmallow);
+      color: var(--color-deep-concord);
+      border: 2px solid var(--color-deep-concord);
+      border-radius: var(--radius-button);
+      padding: 12px 8px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      box-shadow: 0 4px 0 var(--color-deep-concord);
+      transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.2s ease;
+      user-select: none;
+    }
+
+    .btn-action:hover:not(:disabled) {
+      background: #f3efff;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 0 var(--color-deep-concord);
+    }
+
+    .btn-action:active:not(:disabled) {
+      transform: translateY(2px);
+      box-shadow: 0 2px 0 var(--color-deep-concord);
+    }
+
+    .btn-action:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: 0 2px 0 var(--color-deep-concord);
+    }
+
+    .btn-action .btn-icon {
+      font-size: 24px;
+    }
+
+    /* Modals & Overlays */
+    .modal-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(63, 7, 145, 0.85);
+      backdrop-filter: blur(6px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      z-index: 100;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .modal-card {
+      background: var(--color-marshmallow);
+      border: 3px solid var(--color-deep-concord);
+      border-radius: var(--radius-card);
+      padding: 28px 24px;
+      width: 100%;
+      text-align: center;
+      box-shadow: var(--shadow-xl-2);
+      animation: slideUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .modal-title {
+      font-size: 24px;
+      font-weight: 900;
+      color: var(--color-deep-concord);
+      margin-bottom: 8px;
+    }
+
+    .modal-subtitle {
+      font-size: 14px;
+      color: #635b7a;
+      margin-bottom: 20px;
+      line-height: 1.4;
+    }
+
+    .input-field {
+      width: 100%;
+      padding: 12px 20px;
+      border-radius: var(--radius-pill);
+      border: 2px solid var(--color-deep-concord);
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--color-deep-concord);
+      outline: none;
+      margin-bottom: 20px;
+      background: #faf8ff;
+      text-align: center;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .input-field:focus {
+      border-color: var(--color-bubblegum-flash);
+      box-shadow: 0 0 0 3px rgba(227, 11, 166, 0.25);
+    }
+
+    .btn-primary {
+      width: 100%;
+      background: var(--color-deep-concord);
+      color: var(--color-marshmallow);
+      border: none;
+      border-radius: var(--radius-pill);
+      padding: 14px 24px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(63, 7, 145, 0.3);
+      transition: transform 0.15s ease, background 0.2s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .btn-primary:hover {
+      background: #4f0bb8;
+      transform: translateY(-2px);
+    }
+
+    .btn-primary:active {
+      transform: translateY(1px);
+    }
+
+    .btn-secondary {
+      width: 100%;
+      background: var(--color-marshmallow);
+      color: var(--color-deep-concord);
+      border: 2px solid var(--color-deep-concord);
+      border-radius: var(--radius-pill);
+      padding: 12px 24px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-secondary:hover {
+      background: var(--color-lilac-aisle);
+    }
+
+    /* Result Modal Score Tiles */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin: 16px 0 20px;
+    }
+
+    .summary-tile {
+      background: #f6f3ff;
+      border: 1.5px solid var(--color-soft-grape);
+      border-radius: 14px;
+      padding: 10px 4px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .summary-tile span.label {
+      font-size: 11px;
+      font-weight: 600;
+      color: #6a6288;
+    }
+
+    .summary-tile span.value {
+      font-size: 16px;
+      font-weight: 900;
+      color: var(--color-deep-concord);
+    }
+
+    .rank-badge {
+      display: inline-block;
+      background: var(--gradient-electric-grape);
+      color: white;
+      font-size: 16px;
+      font-weight: 900;
+      padding: 8px 18px;
+      border-radius: var(--radius-pill);
+      margin-bottom: 16px;
+      box-shadow: 0 4px 12px rgba(227, 11, 166, 0.3);
+      text-transform: uppercase;
+    }
+
+    /* Floating Status Indicator */
+    .game-hints {
+      font-size: 11px;
+      color: #7b7496;
+      text-align: center;
+      padding: 8px 16px 14px;
+      background: var(--color-marshmallow);
+      border-top: 1px dashed var(--color-soft-grape);
+    }
+
+    /* Animations */
+    @keyframes gentleFloat {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-8px) rotate(2deg); }
+    }
+
+    @keyframes happyJump {
+      0%, 100% { transform: translateY(0) scale(1); }
+      30% { transform: translateY(-20px) scale(1.15) rotate(-5deg); }
+      60% { transform: translateY(-10px) scale(1.05) rotate(5deg); }
+    }
+
+    @keyframes shakeSad {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-8px) rotate(-4deg); }
+      40%, 80% { transform: translateX(8px) rotate(4deg); }
+    }
+
+    @keyframes ghostHover {
+      0%, 100% { transform: translateY(0) scale(1); opacity: 0.85; }
+      50% { transform: translateY(-15px) scale(1.08); opacity: 1; }
+    }
+
+    @keyframes pulseAlert {
+      from { transform: scale(1); }
+      to { transform: scale(1.12); }
+    }
+
+    @keyframes popIn {
+      0% { opacity: 0; transform: scale(0.8); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-wrapper">
+    <!-- Main Game Frame -->
+    <div class="game-card">
+      
+      <!-- Top Header -->
+      <header class="game-header">
+        <div class="header-pet-name">
+          <span>🐾</span>
+          <span id="petNameDisplay">Mascota</span>
+        </div>
+        <div class="digital-clock-badge">
+          <span>⏰</span>
+          <span id="digitalClock">Hora 01:00</span>
+        </div>
+      </header>
+
+      <!-- Day Simulation Progress -->
+      <div class="day-progress-bar-container">
+        <div id="dayProgressBar" class="day-progress-bar"></div>
+      </div>
+
+      <!-- Avatar Stage -->
+      <section class="stage-area">
+        <div class="dialogue-bubble" id="petDialogue">
+          ¡Hola! Soy tu nueva mascota virtual. ¡Cuídame mucho!
+        </div>
+
+        <div class="avatar-wrapper">
+          <div class="avatar-character" id="petAvatar">🐶</div>
+          <div class="urgent-badge" id="urgentBadge">¡ATENCIÓN!</div>
+        </div>
+      </section>
+
+      <!-- Stats Progress Bars -->
+      <section class="stats-container">
+        
+        <!-- Hambre -->
+        <div class="stat-box">
+          <div class="stat-header">
+            <span>🍕 Hambre</span>
+            <span class="stat-value" id="hungerText">100%</span>
+          </div>
+          <div class="stat-bar-track">
+            <div class="stat-bar-fill fill-hunger" id="hungerBar" style="width: 100%;"></div>
+          </div>
+        </div>
+
+        <!-- Diversión -->
+        <div class="stat-box">
+          <div class="stat-header">
+            <span>🎾 Diversión</span>
+            <span class="stat-value" id="funText">100%</span>
+          </div>
+          <div class="stat-bar-track">
+            <div class="stat-bar-fill fill-fun" id="funBar" style="width: 100%;"></div>
+          </div>
+        </div>
+
+        <!-- Higiene -->
+        <div class="stat-box">
+          <div class="stat-header">
+            <span>🚽 Higiene</span>
+            <span class="stat-value" id="hygieneText">100%</span>
+          </div>
+          <div class="stat-bar-track">
+            <div class="stat-bar-fill fill-hygiene" id="hygieneBar" style="width: 100%;"></div>
+          </div>
+        </div>
+
+        <!-- Felicidad General -->
+        <div class="stat-box">
+          <div class="stat-header">
+            <span>💖 Felicidad</span>
+            <span class="stat-value" id="happinessText">100%</span>
+          </div>
+          <div class="stat-bar-track">
+            <div class="stat-bar-fill fill-happiness" id="happinessBar" style="width: 100%;"></div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- Action Buttons -->
+      <section class="controls-container" id="controlsPanel">
+        <button class="btn-action" id="feedBtn" onclick="game.feedPet()">
+          <span class="btn-icon">🍕</span>
+          <span>Alimentar</span>
+        </button>
+
+        <button class="btn-action" id="playBtn" onclick="game.playPet()">
+          <span class="btn-icon">🎾</span>
+          <span>Jugar</span>
+        </button>
+
+        <button class="btn-action" id="bathBtn" onclick="game.cleanPet()">
+          <span class="btn-icon">🚽</span>
+          <span>Baño</span>
+        </button>
+      </section>
+
+      <!-- Game Hint / Rules footer -->
+      <div class="game-hints">
+        Escala: 6s reales = 1 hora simulada (Día completo: 24h / 144s)
+      </div>
+
+      <!-- Initial Setup Modal -->
+      <div class="modal-overlay" id="startModal">
+        <div class="modal-card">
+          <div style="font-size: 50px; margin-bottom: 10px;">🐶✨</div>
+          <h2 class="modal-title">¡Adopta a tu Mascota!</h2>
+          <p class="modal-subtitle">Cuida a tu compañero durante 24 horas simuladas (144s). Atiende su hambre, juega y llévalo al baño.</p>
+          <input type="text" id="petNameInput" class="input-field" placeholder="Nombre de tu mascota" maxlength="15" autofocus>
+          <button class="btn-primary" onclick="game.startGame()">Comenzar Aventura</button>
+        </div>
+      </div>
+
+      <!-- Game Over (Death) Modal -->
+      <div class="modal-overlay hidden" id="deathModal">
+        <div class="modal-card">
+          <div style="font-size: 56px; margin-bottom: 10px;">👻</div>
+          <h2 class="modal-title" style="color: var(--color-bubblegum-flash);">¡Tu mascota se convirtió en Fantasma!</h2>
+          <p class="modal-subtitle" id="deathReason">Tu mascota no resistió las condiciones.</p>
+          <button class="btn-primary" onclick="game.resetGame()">Intentar de Nuevo</button>
+        </div>
+      </div>
+
+      <!-- Victory Summary Modal -->
+      <div class="modal-overlay hidden" id="summaryModal">
+        <div class="modal-card">
+          <div style="font-size: 54px; margin-bottom: 10px;">🏆🎉</div>
+          <h2 class="modal-title">¡Día Completado!</h2>
+          <p class="modal-subtitle">Completaste con éxito las 24 horas simuladas junto a <strong id="summaryPetName">Mascota</strong>.</p>
+          
+          <div class="rank-badge" id="summaryRank">Excelente Cuidador</div>
+
+          <div class="summary-grid">
+            <div class="summary-tile">
+              <span class="label">🍕 Hambre Prom.</span>
+              <span class="value" id="summaryHunger">100%</span>
+            </div>
+            <div class="summary-tile">
+              <span class="label">🎾 Diversión</span>
+              <span class="value" id="summaryFun">100%</span>
+            </div>
+            <div class="summary-tile">
+              <span class="label">🚽 Higiene</span>
+              <span class="value" id="summaryHygiene">100%</span>
+            </div>
+          </div>
+
+          <p style="font-size: 15px; font-weight: 700; color: var(--color-deep-concord); margin-bottom: 18px;">
+            Felicidad Final: <span id="summaryHappiness" style="color: var(--color-bubblegum-flash);">100%</span>
+          </p>
+
+          <button class="btn-primary" onclick="game.resetGame()">Jugar de Nuevo</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    /**
+     * Motor de Juego Tamagotchi (Game Engine & UI Integrator)
+     * Reglas y Especificaciones del PLAN.md y DESIGN.md
+     */
+    class TamagotchiGame {
+      constructor() {
+        // Constantes del Simulador
+        this.REAL_SECONDS_PER_HOUR = 6;
+        this.TOTAL_HOURS = 24;
+        this.TOTAL_DURATION_MS = this.TOTAL_HOURS * this.REAL_SECONDS_PER_HOUR * 1000; // 144s
+
+        // Estado del Juego
+        this.petName = "Toby";
+        this.currentHour = 1;
+        this.isPlaying = false;
+        this.gameTimer = null;
+
+        // Variables Internas de la Mascota (0 - 100%)
+        this.hunger = 100;
+        this.fun = 100;
+        this.hygiene = 100;
+
+        // Banderas de Necesidades Activas
+        this.isHungry = false;
+        this.wantsToPlay = false;
+        this.needsBathroom = false;
+
+        // Contadores de Reglas de Muerte
+        this.ignoredHungerCount = 0; // 2 = Inanición
+        this.overfeedCount = 0;       // 3 = Empacho
+
+        // Acumuladores para Promedios de Resumen Final
+        this.statHistory = {
+          hunger: [],
+          fun: [],
+          hygiene: [],
+          happiness: []
+        };
+
+        // Cache de Elementos DOM
+        this.dom = {
+          startModal: document.getElementById('startModal'),
+          deathModal: document.getElementById('deathModal'),
+          summaryModal: document.getElementById('summaryModal'),
+          petNameInput: document.getElementById('petNameInput'),
+          petNameDisplay: document.getElementById('petNameDisplay'),
+          digitalClock: document.getElementById('digitalClock'),
+          dayProgressBar: document.getElementById('dayProgressBar'),
+          petAvatar: document.getElementById('petAvatar'),
+          petDialogue: document.getElementById('petDialogue'),
+          urgentBadge: document.getElementById('urgentBadge'),
+          hungerText: document.getElementById('hungerText'),
+          hungerBar: document.getElementById('hungerBar'),
+          funText: document.getElementById('funText'),
+          funBar: document.getElementById('funBar'),
+          hygieneText: document.getElementById('hygieneText'),
+          hygieneBar: document.getElementById('hygieneBar'),
+          happinessText: document.getElementById('happinessText'),
+          happinessBar: document.getElementById('happinessBar'),
+          controlsPanel: document.getElementById('controlsPanel'),
+          deathReason: document.getElementById('deathReason'),
+          summaryPetName: document.getElementById('summaryPetName'),
+          summaryRank: document.getElementById('summaryRank'),
+          summaryHunger: document.getElementById('summaryHunger'),
+          summaryFun: document.getElementById('summaryFun'),
+          summaryHygiene: document.getElementById('summaryHygiene'),
+          summaryHappiness: document.getElementById('summaryHappiness'),
+          feedBtn: document.getElementById('feedBtn'),
+          playBtn: document.getElementById('playBtn'),
+          bathBtn: document.getElementById('bathBtn')
+        };
+
+        // Permitir iniciar presionando Enter en el input
+        this.dom.petNameInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') this.startGame();
+        });
+      }
+
+      /**
+       * Inicio de la Partida
+       */
+      startGame() {
+        const inputVal = this.dom.petNameInput.value.trim();
+        this.petName = inputVal ? inputVal : "Toby";
+        this.dom.petNameDisplay.textContent = this.petName;
+
+        // Ocultar modal de inicio
+        this.dom.startModal.classList.add('hidden');
+        this.dom.deathModal.classList.add('hidden');
+        this.dom.summaryModal.classList.add('hidden');
+
+        // Reiniciar variables
+        this.currentHour = 1;
+        this.hunger = 100;
+        this.fun = 100;
+        this.hygiene = 100;
+        this.isHungry = false;
+        this.wantsToPlay = false;
+        this.needsBathroom = false;
+        this.ignoredHungerCount = 0;
+        this.overfeedCount = 0;
+        this.statHistory = { hunger: [100], fun: [100], hygiene: [100], happiness: [100] };
+        this.isPlaying = true;
+
+        this.updateUI();
+        this.setDialogue(`¡Hola! Soy ${this.petName}. ¡Cuidemos juntos las próximas 24 horas!`);
+
+        // Iniciar Game Loop (1 hora simulada cada 6 segundos reales)
+        if (this.gameTimer) clearInterval(this.gameTimer);
+        this.gameTimer = setInterval(() => this.tickHour(), this.REAL_SECONDS_PER_HOUR * 1000);
+      }
+
+      /**
+       * Ciclo por Hora Simulada
+       */
+      tickHour() {
+        if (!this.isPlaying) return;
+
+        // Avanzar hora
+        this.currentHour++;
+
+        // Registrar estadísticas para el promedio
+        const currentHappiness = this.calculateHappiness();
+        this.statHistory.hunger.push(this.hunger);
+        this.statHistory.fun.push(this.fun);
+        this.statHistory.hygiene.push(this.hygiene);
+        this.statHistory.happiness.push(currentHappiness);
+
+        // 1. Ciclo de Hambre Fijo: Cada 6 horas simuladas (horas 6, 12, 18, 24)
+        if (this.currentHour % 6 === 0) {
+          if (this.isHungry) {
+            // Ya tenía hambre del ciclo anterior y no se le dio de comer (2do aviso ignorado)
+            this.ignoredHungerCount++;
+            if (this.ignoredHungerCount >= 2) {
+              this.triggerDeath("Inanición: Se ignoraron 2 solicitudes consecutivas de comida (12 horas sin alimentar). ¡Tu mascota no resistió!");
+              return;
+            }
+          } else {
+            // Primer aviso de hambre
+            this.isHungry = true;
+            this.ignoredHungerCount = 1;
+          }
+
+          this.hunger = Math.max(10, this.hunger - 50); // Baja drásticamente
+          this.setDialogue("¡Tengo mucha hambre! 🍕 Por favor aliméntame.");
+          this.triggerAvatarAnimation("shake");
+        } 
+        else {
+          // 2. Eventos Aleatorios en horas no fijas de hambre
+          this.triggerRandomEvent();
+        }
+
+        // 3. Desgaste natural leve de diversión e higiene con el paso del tiempo
+        if (!this.wantsToPlay && this.fun > 20) {
+          this.fun = Math.max(20, this.fun - 5);
+        }
+        if (!this.needsBathroom && this.hygiene > 20) {
+          this.hygiene = Math.max(20, this.hygiene - 5);
+        }
+
+        // Actualizar UI
+        this.updateUI();
+
+        // 4. Verificar Fin de Juego (24 Horas Completadas = 144 segundos)
+        if (this.currentHour >= this.TOTAL_HOURS) {
+          this.triggerVictory();
+        }
+      }
+
+      /**
+       * Generador de Eventos Aleatorios
+       */
+      triggerRandomEvent() {
+        const rand = Math.random();
+
+        // 40% de probabilidad de evento si no tiene hambre
+        if (rand < 0.25 && !this.wantsToPlay) {
+          this.wantsToPlay = true;
+          this.fun = Math.max(20, this.fun - 40);
+          this.setDialogue("¡Estoy aburrido! 🎾 Juega conmigo.");
+          this.triggerAvatarAnimation("shake");
+        } else if (rand >= 0.25 && rand < 0.50 && !this.needsBathroom) {
+          this.needsBathroom = true;
+          this.hygiene = Math.max(20, this.hygiene - 40);
+          this.setDialogue("¡Me hago pipí! 🚽 Llévame al baño.");
+          this.triggerAvatarAnimation("shake");
+        }
+      }
+
+      /**
+       * Acción: Alimentar
+       */
+      feedPet() {
+        if (!this.isPlaying) return;
+
+        if (this.isHungry) {
+          // Atiende la necesidad de hambre requerida
+          this.hunger = 100;
+          this.isHungry = false;
+          this.ignoredHungerCount = 0;
+          this.overfeedCount = 0; // Reinicia contador de exceso al ser legítimo
+          this.setDialogue("¡Ñam ñam! Qué rico. ¡Gracias!");
+          this.triggerAvatarAnimation("bounce");
+        } else {
+          // Alimentar cuando NO tiene hambre (regla de empacho)
+          this.overfeedCount++;
+          if (this.overfeedCount >= 3) {
+            this.triggerDeath("Empacho: Se alimentó a la mascota 3 veces sin haberlo solicitado.");
+            return;
+          } else {
+            this.setDialogue(`¡Ya estoy lleno! No me des tanta comida (Aviso de empacho: ${this.overfeedCount}/3).`);
+            this.triggerAvatarAnimation("shake");
+          }
+        }
+
+        this.updateUI();
+      }
+
+      /**
+       * Acción: Jugar
+       */
+      playPet() {
+        if (!this.isPlaying) return;
+
+        this.fun = 100;
+        this.wantsToPlay = false;
+        this.setDialogue("¡Weee! Me encanta jugar contigo. 🎾");
+        this.triggerAvatarAnimation("bounce");
+        this.updateUI();
+      }
+
+      /**
+       * Acción: Baño
+       */
+      cleanPet() {
+        if (!this.isPlaying) return;
+
+        this.hygiene = 100;
+        this.needsBathroom = false;
+        this.setDialogue("Uff, qué alivio. ¡Estoy súper limpio! ✨");
+        this.triggerAvatarAnimation("bounce");
+        this.updateUI();
+      }
+
+      /**
+       * Cálculo de Felicidad General
+       */
+      calculateHappiness() {
+        return Math.round((this.hunger + this.fun + this.hygiene) / 3);
+      }
+
+      /**
+       * Actualización de la Interfaz
+       */
+      updateUI() {
+        // Reloj y Progreso de 24 horas
+        const displayH = Math.min(this.currentHour, 24);
+        const formattedH = displayH < 10 ? `0${displayH}` : `${displayH}`;
+        this.dom.digitalClock.textContent = `Hora ${formattedH}:00`;
+        
+        const progressPercent = Math.min(100, (displayH / 24) * 100);
+        this.dom.dayProgressBar.style.width = `${progressPercent}%`;
+
+        // Estadísticas
+        const happiness = this.calculateHappiness();
+        
+        this.dom.hungerText.textContent = `${this.hunger}%`;
+        this.dom.hungerBar.style.width = `${this.hunger}%`;
+        this.dom.hungerBar.classList.toggle('fill-low', this.hunger <= 30);
+
+        this.dom.funText.textContent = `${this.fun}%`;
+        this.dom.funBar.style.width = `${this.fun}%`;
+        this.dom.funBar.classList.toggle('fill-low', this.fun <= 30);
+
+        this.dom.hygieneText.textContent = `${this.hygiene}%`;
+        this.dom.hygieneBar.style.width = `${this.hygiene}%`;
+        this.dom.hygieneBar.classList.toggle('fill-low', this.hygiene <= 30);
+
+        this.dom.happinessText.textContent = `${happiness}%`;
+        this.dom.happinessBar.style.width = `${happiness}%`;
+        this.dom.happinessBar.classList.toggle('fill-low', happiness <= 30);
+
+        // Avatar Visual State
+        if (this.isPlaying) {
+          if (this.isHungry || this.hunger < 40) {
+            this.dom.petAvatar.textContent = "🥺";
+            this.dom.urgentBadge.textContent = "¡TIENE HAMBRE!";
+            this.dom.urgentBadge.style.display = "block";
+          } else if (this.needsBathroom || this.hygiene < 40) {
+            this.dom.petAvatar.textContent = "😖";
+            this.dom.urgentBadge.textContent = "¡BAÑO URGENTE!";
+            this.dom.urgentBadge.style.display = "block";
+          } else if (this.wantsToPlay || this.fun < 40) {
+            this.dom.petAvatar.textContent = "🥱";
+            this.dom.urgentBadge.textContent = "¡ABURRIDO!";
+            this.dom.urgentBadge.style.display = "block";
+          } else if (happiness >= 80) {
+            this.dom.petAvatar.textContent = "🐶";
+            this.dom.urgentBadge.style.display = "none";
+          } else {
+            this.dom.petAvatar.textContent = "🙂";
+            this.dom.urgentBadge.style.display = "none";
+          }
+        }
+      }
+
+      /**
+       * Mensaje en Bocadillo
+       */
+      setDialogue(text) {
+        this.dom.petDialogue.textContent = text;
+      }
+
+      /**
+       * Animación del Avatar
+       */
+      triggerAvatarAnimation(animClass) {
+        this.dom.petAvatar.classList.remove('bounce', 'shake');
+        // Force reflow
+        void this.dom.petAvatar.offsetWidth;
+        this.dom.petAvatar.classList.add(animClass);
+      }
+
+      /**
+       * Condición de Muerte (Transformación en Fantasma)
+       */
+      triggerDeath(reason) {
+        this.isPlaying = false;
+        clearInterval(this.gameTimer);
+
+        // Estado Fantasma
+        this.dom.petAvatar.textContent = "👻";
+        this.dom.petAvatar.className = "avatar-character dead";
+        this.dom.urgentBadge.style.display = "none";
+        this.setDialogue("¡Oh no! Me he convertido en un fantasma...");
+
+        // Mostrar Modal de Derrota
+        this.dom.deathReason.textContent = reason;
+        setTimeout(() => {
+          this.dom.deathModal.classList.remove('hidden');
+        }, 800);
+      }
+
+      /**
+       * Condición de Victoria (24 Horas Completadas)
+       */
+      triggerVictory() {
+        this.isPlaying = false;
+        clearInterval(this.gameTimer);
+
+        // Calcular Promedios
+        const avg = (arr) => Math.round(arr.reduce((a, b) => a + b, 0) / arr.length);
+        const avgHunger = avg(this.statHistory.hunger);
+        const avgFun = avg(this.statHistory.fun);
+        const avgHygiene = avg(this.statHistory.hygiene);
+        const avgHappiness = avg(this.statHistory.happiness);
+
+        // Clasificar Desempeño
+        let rank = "De milagro sobrevivió 🥉";
+        if (avgHappiness >= 85) {
+          rank = "¡Excelente Cuidador! 🏆";
+        } else if (avgHappiness >= 60) {
+          rank = "Cuidador Decente 🥈";
+        }
+
+        // Llenar datos de resumen
+        this.dom.summaryPetName.textContent = this.petName;
+        this.dom.summaryRank.textContent = rank;
+        this.dom.summaryHunger.textContent = `${avgHunger}%`;
+        this.dom.summaryFun.textContent = `${avgFun}%`;
+        this.dom.summaryHygiene.textContent = `${avgHygiene}%`;
+        this.dom.summaryHappiness.textContent = `${avgHappiness}%`;
+
+        this.setDialogue(`¡Completamos el día juntos! Eres un gran amigo.`);
+        this.dom.petAvatar.textContent = "🥳";
+        this.triggerAvatarAnimation("bounce");
+
+        setTimeout(() => {
+          this.dom.summaryModal.classList.remove('hidden');
+        }, 1000);
+      }
+
+      /**
+       * Reiniciar todo a la pantalla de inicio
+       */
+      resetGame() {
+        clearInterval(this.gameTimer);
+        this.dom.petAvatar.className = "avatar-character";
+        this.dom.startModal.classList.remove('hidden');
+        this.dom.deathModal.classList.add('hidden');
+        this.dom.summaryModal.classList.add('hidden');
+        this.dom.petNameInput.value = "";
+        this.dom.petNameInput.focus();
+      }
+    }
+
+    // Inicializar Instancia Global del Juego
+    const game = new TamagotchiGame();
+  </script>
+</body>
+</html>
